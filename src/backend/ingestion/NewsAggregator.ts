@@ -94,12 +94,39 @@ export class NewsAggregator {
     }
 
     /**
-     * Simulation FinancialJuice (Car SPA complexe nécessitant Puppeteer)
-     * Pour la démo, on retourne des données statiques réalistes.
+     * Récupère les news de FinancialJuice via RSS
+     * URL: https://www.financialjuice.com/feed.ashx?xy=rss
      */
     async fetchFinancialJuice(): Promise<NewsItem[]> {
-        // Simulation désactivée - Retourne vide si pas de vraie API
-        return [];
+        try {
+            const { data } = await axios.get('https://www.financialjuice.com/feed.ashx?xy=rss', {
+                headers: { 'User-Agent': 'Mozilla/5.0 (compatible; NovaQuoteAgent/1.0)' },
+                timeout: 5000
+            });
+
+            const $ = cheerio.load(data, { xmlMode: true });
+            const news: NewsItem[] = [];
+
+            $('item').each((_, el) => {
+                const title = $(el).find('title').text().trim();
+                const link = $(el).find('link').text().trim();
+                const pubDate = $(el).find('pubDate').text();
+
+                if (title && link) {
+                    news.push({
+                        title,
+                        source: 'FinancialJuice',
+                        url: link,
+                        timestamp: new Date(pubDate)
+                    });
+                }
+            });
+
+            return news.slice(0, 20); // Top 20 news
+        } catch (error) {
+            console.error('Error fetching FinancialJuice RSS:', error instanceof Error ? error.message : error);
+            return [];
+        }
     }
 
     /**

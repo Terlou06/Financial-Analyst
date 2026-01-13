@@ -186,11 +186,11 @@ class FinancialAnalystApp {
                 await this.refreshData(false);
                 await this.analyzeMarketSentiment();
 
-                console.log(`\n⏰ Waiting 5 minutes before next analysis...`);
+                console.log(`\n⏰ Waiting 12 hours before next analysis...`);
                 console.log("   (Press Ctrl+C to stop)");
 
-                // Wait 5 minutes
-                await new Promise(resolve => setTimeout(resolve, 5 * 60 * 1000));
+                // Wait 12 hours (2 times per day)
+                await new Promise(resolve => setTimeout(resolve, 12 * 60 * 60 * 1000));
 
             } catch (error) {
                 console.error(`\n❌ Analysis #${analysisCount} failed:`, error instanceof Error ? error.message : 'Unknown error');
